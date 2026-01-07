@@ -196,3 +196,27 @@ test('writeWrapper handles unset auth token option', () => {
     cleanup(tempDir);
   }
 });
+
+test('writeWrapper includes LLM gateway support for router variants', () => {
+  const tempDir = makeTempDir();
+  const configDir = path.join(tempDir, 'config');
+  const wrapperPath = path.join(tempDir, 'wrapper');
+  const binaryPath = '/path/to/binary';
+
+  fs.mkdirSync(configDir, { recursive: true });
+
+  try {
+    writeWrapper(wrapperPath, configDir, binaryPath);
+    const content = fs.readFileSync(wrapperPath, 'utf8');
+    assert.ok(content.includes('CC_MIRROR_LLM_GATEWAY'), 'Should include gateway toggle');
+    assert.ok(content.includes('llm-gateway.mjs'), 'Should reference gateway script');
+    assert.ok(content.includes('CC_MIRROR_GATEWAY_PORT'), 'Should source gateway port');
+    assert.ok(content.includes('CC_MIRROR_GATEWAY_PREFIX'), 'Should source gateway prefix');
+    assert.ok(content.includes('CC_MIRROR_GATEWAY_MODE'), 'Should support gateway mode selection');
+    assert.ok(content.includes('llm-gateway-hook.cjs'), 'Should reference gateway hook');
+    assert.ok(content.includes('--require'), 'Should load gateway hook when needed');
+    assert.ok(content.includes('ANTHROPIC_BASE_URL'), 'Should export gateway base URL');
+  } finally {
+    cleanup(tempDir);
+  }
+});

@@ -614,7 +614,13 @@ export const App: React.FC<AppProps> = ({
       <ApiKeyScreen
         providerLabel={provider?.label || 'Provider'}
         providerKey={providerKey || undefined}
-        envVarName={provider?.authMode === 'authToken' ? 'ANTHROPIC_AUTH_TOKEN' : 'ANTHROPIC_API_KEY'}
+        envVarName={
+          providerKey === 'anthropic-router'
+            ? 'MINIMAX_API_KEY'
+            : provider?.authMode === 'authToken'
+              ? 'ANTHROPIC_AUTH_TOKEN'
+              : 'ANTHROPIC_API_KEY'
+        }
         value={apiKey}
         onChange={setApiKey}
         onSubmit={() => setScreen(provider?.requiresModelMapping ? 'quick-models' : 'quick-name')}
@@ -752,10 +758,11 @@ export const App: React.FC<AppProps> = ({
   }
 
   if (screen === 'create-name') {
-    // CCRouter goes to its own URL config screen, mirror skips base URL entirely
+    // CCRouter goes to its own URL config screen, mirror skips base URL entirely, anthropic-router skips base URL
     const getNextScreen = () => {
       if (providerKey === 'ccrouter') return 'create-ccrouter-url';
       if (providerKey === 'mirror') return 'create-skill-install'; // Mirror: skip base URL and API key
+      if (providerKey === 'anthropic-router') return 'create-api-key'; // anthropic-router: skip base URL
       return 'create-base-url';
     };
     const nextScreen = getNextScreen();
@@ -825,7 +832,13 @@ export const App: React.FC<AppProps> = ({
       <ApiKeyScreen
         providerLabel={provider?.label || 'Provider'}
         providerKey={providerKey || undefined}
-        envVarName={provider?.authMode === 'authToken' ? 'ANTHROPIC_AUTH_TOKEN' : 'ANTHROPIC_API_KEY'}
+        envVarName={
+          providerKey === 'anthropic-router'
+            ? 'MINIMAX_API_KEY'
+            : provider?.authMode === 'authToken'
+              ? 'ANTHROPIC_AUTH_TOKEN'
+              : 'ANTHROPIC_API_KEY'
+        }
         value={apiKey}
         onChange={setApiKey}
         onSubmit={() => setScreen(provider?.requiresModelMapping ? 'create-models' : nextScreen)}

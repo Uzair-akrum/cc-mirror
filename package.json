@@ -4,6 +4,12 @@
   "type": "module",
   "description": "Create multiple isolated Claude Code variants with custom providers (Z.ai, MiniMax, OpenRouter, Claude Code Router)",
   "author": "Numman Ali",
+  "contributors": [
+    {
+      "name": "Uzair Akrum",
+      "url": "https://x.com/uzairakrum"
+    }
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,13 +40,13 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsx src/cli/index.ts",
-    "tui": "tsx src/cli/index.ts --tui",
-    "bundle": "tsx scripts/bundle.ts",
-    "prepack": "tsx scripts/bundle.ts",
+    "dev": "node --import tsx src/cli/index.ts",
+    "tui": "node --import tsx src/cli/index.ts --tui",
+    "bundle": "node --import tsx scripts/bundle.ts",
+    "prepack": "node --import tsx scripts/bundle.ts",
     "render:tui-svg": "node --import tsx scripts/render-tui-svg.ts",
-    "test": "node --test --import tsx 'test/**/*.test.ts'",
-    "test:watch": "node --test --watch --import tsx 'test/**/*.test.ts'",
+    "test": "node --test --test-concurrency=1 --test-timeout=20000 --import tsx 'test/**/*.test.ts'",
+    "test:watch": "node --test --test-concurrency=1 --test-timeout=20000 --watch --import tsx 'test/**/*.test.ts'",
     "test:coverage": "c8 npm test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src test scripts",

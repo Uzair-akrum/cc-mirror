@@ -4,6 +4,7 @@
 
 import path from 'node:path';
 import { ensureDir } from '../../fs.js';
+import { writeLlmGatewayScript } from '../../llm-gateway/install.js';
 import { expandTilde } from '../../paths.js';
 import { writeWrapper } from '../../wrapper.js';
 import type { UpdateContext, UpdateStep } from '../types.js';
@@ -12,13 +13,11 @@ export class WrapperUpdateStep implements UpdateStep {
   name = 'Wrapper';
 
   execute(ctx: UpdateContext): void {
-    if (ctx.opts.settingsOnly) return;
     ctx.report('Writing CLI wrapper...');
     this.writeWrapper(ctx);
   }
 
   async executeAsync(ctx: UpdateContext): Promise<void> {
-    if (ctx.opts.settingsOnly) return;
     await ctx.report('Writing CLI wrapper...');
     this.writeWrapper(ctx);
   }
@@ -31,6 +30,9 @@ export class WrapperUpdateStep implements UpdateStep {
     if (resolvedBin) {
       ensureDir(resolvedBin);
       const wrapperPath = path.join(resolvedBin, name);
+      if (meta.provider === 'anthropic-router') {
+        writeLlmGatewayScript(meta.configDir);
+      }
       writeWrapper(wrapperPath, meta.configDir, meta.binaryPath, 'node');
       meta.binDir = resolvedBin;
     }

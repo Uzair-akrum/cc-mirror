@@ -55,4 +55,14 @@ if (fs.existsSync(skillsSrcDir)) {
   console.log('Copied skills to dist/skills');
 }
 
+// Copy gateway runtime script (used by router variants at runtime)
+fs.copyFileSync(
+  path.join(root, 'src', 'core', 'llm-gateway', 'llm-gateway.mjs'),
+  path.join(distDir, 'llm-gateway.mjs')
+);
+fs.copyFileSync(
+  path.join(root, 'src', 'core', 'llm-gateway', 'llm-gateway-hook.cjs'),
+  path.join(distDir, 'llm-gateway-hook.cjs')
+);
+
 console.log('Bundled to dist/cc-mirror.mjs and dist/tui.mjs');

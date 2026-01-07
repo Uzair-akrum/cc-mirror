@@ -15,7 +15,7 @@ import { colors, icons } from './theme.js';
 
 interface ScreenLayoutProps {
   /** Screen title - displayed prominently at top */
-  title: string;
+  title: ReactNode;
   /** Optional subtitle - displayed below title in muted color */
   subtitle?: string;
   /** Screen content */
@@ -46,6 +46,17 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   borderColor = colors.borderFocus,
   icon = 'bullet',
 }) => {
+  const renderTitle = () => {
+    if (typeof title === 'string' || typeof title === 'number') {
+      return (
+        <Text color={colors.textBright} bold>
+          {title}
+        </Text>
+      );
+    }
+    return title;
+  };
+
   return (
     <Frame borderColor={borderColor}>
       {/* Header */}
@@ -55,9 +66,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
             {icons[icon]}{' '}
           </Text>
         )}
-        <Text color={colors.textBright} bold>
-          {title}
-        </Text>
+        {renderTitle()}
       </Box>
       {subtitle && <Text color={colors.textMuted}>{subtitle}</Text>}
 

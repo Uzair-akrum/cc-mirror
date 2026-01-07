@@ -52,6 +52,26 @@ export const PROVIDER_EDUCATION: Record<string, ProviderEducation> = {
     setupNote: 'Subscribe to the Z.ai Coding Plan, then copy your API key from the dashboard.',
   },
 
+  'anthropic-router': {
+    headline: 'Anthropax — Anthropic main + MiniMax subagents',
+    tagline: 'Anthropic OAuth, MiniMax routing on localhost',
+    features: [
+      'Main requests stay on Anthropic OAuth/subscription',
+      'Subagent requests route to MiniMax via localhost gateway',
+      'MiniMax API key is never exported to the Claude Code process',
+      'Works with streaming (SSE) passthrough',
+    ],
+    bestFor: 'Using Anthropic for primary work while offloading subagents to MiniMax',
+    requiresMapping: false,
+    hasPromptPack: false,
+    setupLinks: {
+      subscribe: 'https://platform.minimax.io/subscribe/coding-plan',
+      apiKey: 'https://platform.minimax.io/user-center/payment/coding-plan',
+      docs: 'https://github.com/numman-ali/cc-mirror/blob/main/docs/LLM-GATEWAY.md',
+    },
+    setupNote: 'Sign in to Claude Code (Anthropic OAuth), then add your MiniMax API key for subagent routing.',
+  },
+
   minimax: {
     headline: 'MiniMax-M2.1 — AGI for All',
     tagline: 'Coral pulses, unified model',

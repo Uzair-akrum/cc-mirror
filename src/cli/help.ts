@@ -28,7 +28,7 @@ COMMANDS
 
 OPTIONS (create/quick)
   --name <name>                Variant name (becomes CLI command)
-  --provider <name>            Provider: zai | minimax | openrouter | ccrouter
+  --provider <name>            Provider: zai | minimax | anthropic-router (Anthropax) | openrouter | ccrouter
   --api-key <key>              Provider API key
   --brand <preset>             Theme: auto | none | zai | minimax
   --quick                      Fast path mode
@@ -41,16 +41,18 @@ OPTIONS (advanced)
   --model-haiku <name>         Default Haiku model
   --root <path>                Variants root (default: ~/.cc-mirror)
   --bin-dir <path>             Wrapper install dir (default: ~/.local/bin)
+  --settings-only              Skip npm reinstall + tweakcc (update config/wrapper only)
   --no-tweak                   Skip tweakcc theming
   --no-prompt-pack             Skip provider prompt pack
   --prompt-pack-mode <mode>    minimal | maximal
   --shell-env                  Write env vars to shell profile (Z.ai)
 
 EXAMPLES
-  npx cc-mirror quick --provider zai
-  npx cc-mirror create --provider minimax --brand minimax
-  npx cc-mirror update zai
-  npx cc-mirror doctor
+  cc-mirror quick --provider zai
+  cc-mirror quick --provider anthropic-router   # Anthropax
+  cc-mirror create --provider minimax --brand minimax
+  cc-mirror update zai
+  cc-mirror doctor
 
 LEARN MORE
   https://github.com/numman-ali/cc-mirror

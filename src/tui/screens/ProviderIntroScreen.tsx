@@ -5,7 +5,7 @@
 import React from 'react';
 import { Box, Text, useInput } from 'ink';
 import { ScreenLayout } from '../components/ui/ScreenLayout.js';
-import { colors, keyHints } from '../components/ui/theme.js';
+import { anthropaxGradient, colors, keyHints } from '../components/ui/theme.js';
 import { getProviderEducation } from '../content/providers.js';
 
 export interface ProviderIntroScreenProps {
@@ -89,11 +89,36 @@ export const ProviderIntroScreen: React.FC<ProviderIntroScreenProps> = ({
     return steps;
   };
 
+  const renderAnthropaxLabel = (label: string) => {
+    const chars = label.split('');
+    const lastIndex = Math.max(chars.length - 1, 1);
+    return chars.map((char, index) => {
+      const colorIndex = Math.floor((index / lastIndex) * (anthropaxGradient.length - 1));
+      return (
+        <Text key={`${index}-${char}`} color={anthropaxGradient[colorIndex]} bold>
+          {char}
+        </Text>
+      );
+    });
+  };
+
+  const title =
+    providerKey === 'anthropic-router' ? (
+      <>
+        <Text color={colors.textBright} bold>
+          {'Setting up '}
+        </Text>
+        {renderAnthropaxLabel(providerLabel)}
+      </>
+    ) : (
+      `Setting up ${providerLabel}`
+    );
+
   const steps = buildSteps();
 
   return (
     <ScreenLayout
-      title={`Setting up ${providerLabel}`}
+      title={title}
       subtitle={education?.tagline || 'Configure your variant'}
       hints={[keyHints.back, 'Enter Continue']}
     >

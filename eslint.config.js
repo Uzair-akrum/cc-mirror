@@ -44,7 +44,7 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', '*.js', '*.mjs', '!eslint.config.js'],
+    ignores: ['dist/**', 'node_modules/**', '**/*.js', '**/*.mjs', '!eslint.config.js'],
   },
   prettier
 );

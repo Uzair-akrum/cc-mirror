@@ -42,6 +42,8 @@ export const colors = {
   logoAccent: 'white',
 } as const;
 
+export const anthropaxGradient = ['magentaBright', 'magenta', 'redBright', 'yellow'] as const;
+
 // Unicode icons - clean and minimal
 export const icons = {
   // Navigation
@@ -103,6 +105,11 @@ export const providerColors = {
     primary: 'blue',
     border: 'blue',
     accent: 'blueBright',
+  },
+  'anthropic-router': {
+    primary: 'magenta',
+    border: 'magenta',
+    accent: 'redBright',
   },
   default: {
     primary: 'blue',

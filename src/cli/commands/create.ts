@@ -56,7 +56,7 @@ async function prepareCreateParams(opts: ParsedArgs): Promise<CreateParams> {
   }
 
   const name = (opts.name as string) || providerKey;
-  const baseUrl = (opts['base-url'] as string) || provider.baseUrl;
+  const baseUrl = providerKey === 'anthropic-router' ? '' : (opts['base-url'] as string) || provider.baseUrl;
   const envZaiKey = providerKey === 'zai' ? process.env.Z_AI_API_KEY : undefined;
   const envAnthropicKey = providerKey === 'zai' ? process.env.ANTHROPIC_API_KEY : undefined;
   const hasApiKeyFlag = Boolean(opts['api-key']);
@@ -178,7 +178,7 @@ async function handleInteractiveMode(opts: ParsedArgs, params: CreateParams): Pr
   const modelOverrides = getModelOverridesFromArgs(opts);
 
   const nextName = await prompt('Variant name', params.name);
-  const nextBase = await prompt('ANTHROPIC_BASE_URL', params.baseUrl);
+  const nextBase = params.providerKey === 'anthropic-router' ? '' : await prompt('ANTHROPIC_BASE_URL', params.baseUrl);
 
   let nextKey = params.shouldPromptApiKey
     ? params.requiresCredential

@@ -60,13 +60,14 @@ npx cc-mirror quick --provider zai --api-key "$Z_AI_API_KEY"
 
 ## 🔌 Supported Providers
 
-| Provider       | Models                 | Auth       | Best For                        |
-| -------------- | ---------------------- | ---------- | ------------------------------- |
-| **Z.ai**       | GLM-4.7, GLM-4.5-Air   | API Key    | Heavy coding with GLM reasoning |
-| **MiniMax**    | MiniMax-M2.1           | API Key    | Unified model experience        |
-| **OpenRouter** | 100+ models            | Auth Token | Model flexibility, pay-per-use  |
-| **CCRouter**   | Ollama, DeepSeek, etc. | Optional   | Local-first development         |
-| **Mirror**     | Claude (native)        | OAuth/Key  | Pure Claude with team mode      |
+| Provider             | Models                 | Auth       | Best For                               |
+| -------------------- | ---------------------- | ---------- | -------------------------------------- |
+| **Z.ai**             | GLM-4.7, GLM-4.5-Air   | API Key    | Heavy coding with GLM reasoning        |
+| **MiniMax**          | MiniMax-M2.1           | API Key    | Unified model experience               |
+| **Anthropax** ⭐ | Claude + MiniMax (dual) | OAuth + Key | Best of both: premium Claude + cost-effective subagents |
+| **OpenRouter**       | 100+ models            | Auth Token | Model flexibility, pay-per-use         |
+| **CCRouter**         | Ollama, DeepSeek, etc. | Optional   | Local-first development                |
+| **Mirror**           | Claude (native)        | OAuth/Key  | Pure Claude with team mode             |
 
 ```bash
 # Z.ai (GLM Coding Plan)
@@ -74,6 +75,9 @@ npx cc-mirror quick --provider zai --api-key "$Z_AI_API_KEY"
 
 # MiniMax (MiniMax-M2.1)
 npx cc-mirror quick --provider minimax --api-key "$MINIMAX_API_KEY"
+
+# Anthropax ⭐ (Claude main + MiniMax subagents with local gateway)
+npx cc-mirror quick --provider anthropic-router --name my-router --api-key "$MINIMAX_API_KEY"
 
 # OpenRouter (100+ models)
 npx cc-mirror quick --provider openrouter --api-key "$OPENROUTER_API_KEY" \
@@ -132,6 +136,7 @@ mclaude      # Launch Mirror Claude variant
 | **🎨 Brand Themes**        | Custom color schemes per provider via [tweakcc](https://github.com/Piebald-AI/tweakcc) |
 | **📝 Prompt Packs**        | Enhanced system prompts for Z.ai and MiniMax                                           |
 | **🤖 Team Mode**           | Multi-agent collaboration with shared task management                                  |
+| **🌉 LLM Gateway** ⭐       | Intelligent dual-model routing: Claude main + MiniMax subagents via localhost gateway  |
 | **📋 Tasks CLI**           | Manage, archive, and visualize task dependencies from command line                     |
 | **🔄 One-Command Updates** | Update all variants when Claude Code releases                                          |
 
@@ -169,7 +174,7 @@ mclaude                       # Run Mirror Claude variant
 ## 🎛️ CLI Options
 
 ```
---provider <name>        zai | minimax | openrouter | ccrouter | mirror | custom
+--provider <name>        zai | minimax | anthropic-router | openrouter | ccrouter | mirror | custom
 --name <name>            Variant name (becomes the CLI command)
 --api-key <key>          Provider API key
 --base-url <url>         Custom API endpoint
@@ -252,7 +257,112 @@ TEAM=backend mc   # Team: mc-myproject-backend
 TEAM=frontend mc  # Team: mc-myproject-frontend
 ```
 
-→ [Team Mode Documentation](docs/features/team-mode.md)
+## 🪞 Anthropax (Dual-Model: Claude + MiniMax)
+
+Route main Claude Code requests to **Anthropic** (via OAuth or subscription) while routing **subagents** to **MiniMax** via an intelligent local gateway. Get the best of both worlds: premium Claude models for your main work, cost-effective MiniMax for parallel agents.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Claude Code (main thread) ────────▶ Anthropic API (OAuth/subscription) │
+│                                 ▲                                       │
+│                                 │                                       │
+│                           Subagent calls (model: minimax:*)             │
+│                                 │                                       │
+│                                 ▼                                       │
+│                    ┌────────────────────────┐                           │
+│                    │ LLM Gateway (localhost)│                           │
+│                    │  Intelligent Routing   │                           │
+│                    └────────────┬───────────┘                           │
+│                                 │                                       │
+│              ┌──────────────────┼──────────────────┐                    │
+│              ▼                  ▼                  ▼                    │
+│        MiniMax-M2.1      Anthropic API    Capability                    │
+│        (Subagents)       (Fallback)        Fallback                     │
+│                                   (Images/Docs/Files)                   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### How It Works
+
+1. **Main requests** — Claude Code connects to `api.anthropic.com` directly (OAuth/subscription works natively)
+2. **Subagent routing** — Requests with model prefix `minimax:<model>` automatically route to MiniMax
+3. **Intelligent fallbacks** — Requests with images, documents, or file uploads automatically fallback to Anthropic (MiniMax limitation handling)
+4. **Streaming support** — Server-sent events (SSE) work seamlessly for both upstreams
+
+### Quick Setup
+
+```bash
+# Interactive setup wizard
+npx cc-mirror create --provider anthropic-router --name my-router
+
+# Or rapid setup
+npx cc-mirror quick --provider anthropic-router --name my-router
+
+# Launch your router
+my-router
+```
+
+### Configuration Details
+
+The router stores MiniMax credentials separately from Claude Code environment:
+
+```bash
+# Edit your variant's config
+nano ~/.cc-mirror/my-router/config/settings.json
+```
+
+```json
+{
+  "env": {},
+  "proxyEnv": {
+    "MINIMAX_API_KEY": "your-minimax-api-key"
+  }
+}
+```
+
+- **`env`** — Variables available to Claude Code (public)
+- **`proxyEnv`** — Variables read-only by the gateway (MiniMax key stays private, never exposed to Claude Code)
+
+### Routing Behavior
+
+| Request Type                         | Routes To                    | Why                                   |
+| ------------------------------------ | ---------------------------- | ------------------------------------- |
+| Main Claude Code interaction         | Anthropic                    | OAuth/subscription work seamlessly    |
+| Subagent with `minimax:MiniMax-M2.1` | MiniMax                      | Explicit routing via model prefix     |
+| Any request with images/documents    | Anthropic (auto-fallback)    | MiniMax doesn't support media         |
+| Temperature outside `(0, 1]` range   | Anthropic (auto-fallback)    | MiniMax temperature constraint        |
+| Any `file_id` in request             | Anthropic (auto-fallback)    | MiniMax lacks file handling           |
+
+### Architecture
+
+The LLM Gateway:
+
+- **Runs as a localhost server** started automatically when you launch your variant
+- **Uses a preload hook** to intercept Claude Code's fetch calls intelligently
+- **Path-prefix security** with random per-launch prefixes prevents unauthorized access
+- **Preserves all headers** and auth correctly for each upstream (Anthropic OAuth, MiniMax API key)
+- **Supports streaming** with byte-for-byte SSE passthrough
+
+### What This Enables
+
+| Goal                         | How the Router Helps                                                      |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| **Premium main work**        | Claude 3.5 Sonnet on Anthropic for your conversations                      |
+| **Cost-effective agents**    | MiniMax-M2.1 for parallel subagent tasks (lower cost)                     |
+| **Seamless OAuth**           | No API key needed for Anthropic — use your subscription                    |
+| **Automatic capability handling** | Images/docs intelligently fallback, no manual routing needed        |
+| **Best of both models**      | Leverage strengths: Claude's reasoning + MiniMax's availability           |
+
+### Troubleshooting
+
+| Issue                         | Solution                                          |
+| ----------------------------- | ------------------------------------------------- |
+| Gateway won't start           | Check port `7861` is available; restart variant |
+| Subagents routing to Anthropic | Verify `CLAUDE_CODE_SUBAGENT_MODEL=minimax:MiniMax-M2.1` |
+| MiniMax API key errors        | Confirm key in `proxyEnv`, not `env`             |
+| Images not working with subagents | Expected — they auto-fallback to Anthropic    |
+
+→ [Full LLM Gateway Technical Docs](docs/LLM-GATEWAY.md)
 
 ---
 
@@ -276,12 +386,13 @@ mclaude  # Authenticate via OAuth or API key
 
 ## 📚 Documentation
 
-| Document                                        | Description                                 |
-| ----------------------------------------------- | ------------------------------------------- |
-| [Team Mode](docs/features/team-mode.md)         | Multi-agent collaboration with shared tasks |
-| [Mirror Claude](docs/features/mirror-claude.md) | Pure Claude Code with enhanced features     |
-| [Architecture](docs/architecture/overview.md)   | How cc-mirror works under the hood          |
-| [Full Documentation](docs/README.md)            | Complete documentation index                |
+| Document                                        | Description                                          |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| [Team Mode](docs/features/team-mode.md)         | Multi-agent collaboration with shared tasks          |
+| [LLM Gateway ⭐](docs/LLM-GATEWAY.md)            | Dual-model routing: Claude main + MiniMax subagents |
+| [Mirror Claude](docs/features/mirror-claude.md) | Pure Claude Code with enhanced features              |
+| [Architecture](docs/architecture/overview.md)   | How cc-mirror works under the hood                   |
+| [Full Documentation](docs/README.md)            | Complete documentation index                         |
 
 ---
 
@@ -304,6 +415,13 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development se
 ## 📄 License
 
 MIT — see [LICENSE](LICENSE)
+
+---
+
+## Contributors
+
+- [Numman Ali](https://github.com/numman-ali) — Creator — [@nummanali](https://twitter.com/nummanali)
+- [Uzair Akrum](https://x.com/uzairakrum) — Contributor — [@uzairakrum](https://x.com/uzairakrum)
 
 ---
 

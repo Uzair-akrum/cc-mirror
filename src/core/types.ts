@@ -96,6 +96,7 @@ export interface DoctorReportItem {
   ok: boolean;
   binaryPath?: string;
   wrapperPath: string;
+  issues?: string[];
 }
 
 export interface CreateVariantResult {
@@ -113,6 +114,7 @@ export interface UpdateVariantResult {
 
 export interface VariantConfig {
   env: ProviderEnv;
+  proxyEnv?: ProviderEnv;
 }
 
 export interface TweakResult {

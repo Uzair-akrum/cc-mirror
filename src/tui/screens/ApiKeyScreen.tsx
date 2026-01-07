@@ -22,6 +22,11 @@ const PROVIDER_LINKS: Record<string, ProviderLinkInfo> = {
     subscribe: 'https://z.ai/subscribe',
     note: 'Your Zai API key will be stored as ANTHROPIC_API_KEY for Claude Code compatibility.',
   },
+  'anthropic-router': {
+    apiKey: 'https://platform.minimax.io/user-center/payment/coding-plan',
+    subscribe: 'https://platform.minimax.io/subscribe/coding-plan',
+    note: 'Stored in settings.json as proxyEnv.MINIMAX_API_KEY and never exported to the Claude Code process.',
+  },
   minimax: {
     apiKey: 'https://platform.minimax.io/user-center/payment/coding-plan',
     subscribe: 'https://platform.minimax.io/subscribe/coding-plan',

@@ -19,6 +19,8 @@ export function runUpdateCommand({ opts }: UpdateCommandOptions): void {
   const rootDir = (opts.root as string) || core.DEFAULT_ROOT;
   const binDir = (opts['bin-dir'] as string) || core.DEFAULT_BIN_DIR;
   const names = target ? [target] : core.listVariants(rootDir).map((entry) => entry.name);
+  const settingsOnly =
+    opts['settings-only'] === true || opts['settings-only'] === 'true' || opts['settings-only'] === '1';
 
   if (names.length === 0) {
     console.log(`No variants found in ${rootDir}`);
@@ -38,6 +40,7 @@ export function runUpdateCommand({ opts }: UpdateCommandOptions): void {
       npmPackage: opts['npm-package'] as string | undefined,
       brand: opts.brand as string | undefined,
       noTweak: Boolean(opts.noTweak),
+      settingsOnly,
       promptPack,
       skillInstall,
       shellEnv,

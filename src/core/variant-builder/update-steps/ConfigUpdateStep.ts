@@ -62,6 +62,19 @@ export class ConfigUpdateStep implements UpdateStep {
       CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION: '1',
     });
 
+    // Anthropax defaults/migrations
+    if (meta.provider === 'anthropic-router') {
+      const routerDefaultsUpdated = ensureSettingsEnvDefaults(meta.configDir, {
+        CC_MIRROR_LLM_GATEWAY: '1',
+        CC_MIRROR_GATEWAY_MODE: 'fetch-hook',
+        CC_MIRROR_OAUTH_ONLY: '1',
+        CC_MIRROR_UNSET_PROXY_KEYS: '1',
+      });
+      if (routerDefaultsUpdated) {
+        state.notes.push('Updated Anthropax gateway defaults (fetch-hook mode).');
+      }
+    }
+
     if (envDefaultsUpdated) {
       state.notes.push('Disabled Claude Code auto-updater (DISABLE_AUTOUPDATER=1).');
     }

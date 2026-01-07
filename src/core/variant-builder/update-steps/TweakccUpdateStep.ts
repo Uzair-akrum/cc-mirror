@@ -13,12 +13,14 @@ export class TweakccUpdateStep implements UpdateStep {
   name = 'Tweakcc';
 
   execute(ctx: UpdateContext): void {
+    if (ctx.opts.settingsOnly) return;
     if (ctx.opts.noTweak) return;
     ctx.report('Running tweakcc patches...');
     this.runTweakcc(ctx, false);
   }
 
   async executeAsync(ctx: UpdateContext): Promise<void> {
+    if (ctx.opts.settingsOnly) return;
     if (ctx.opts.noTweak) return;
     await ctx.report('Running tweakcc patches...');
     await this.runTweakcc(ctx, true);

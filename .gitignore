@@ -6,6 +6,7 @@ repos/
 
 # Build output
 dist/
+*.tgz
 
 # Environment
 .env
@@ -35,6 +36,8 @@ npm-debug.log*
 tmp/
 temp/
 *.tmp
+.tmp-*/
+session-*.md
 
 # LiteLLM config files
 litellm-*.yaml

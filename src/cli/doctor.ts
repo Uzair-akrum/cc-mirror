@@ -10,6 +10,11 @@ export const printDoctor = (report: DoctorReportItem[]) => {
     if (!item.ok) {
       console.log(`  binary: ${item.binaryPath ?? 'missing'}`);
       console.log(`  wrapper: ${item.wrapperPath}`);
+      if (item.issues && item.issues.length > 0) {
+        for (const issue of item.issues) {
+          console.log(`  issue: ${issue}`);
+        }
+      }
     }
   }
 };

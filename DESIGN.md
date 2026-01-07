@@ -100,6 +100,16 @@ Brand presets stamp the user label for the chat banner from `CLAUDE_CODE_USER_LA
 
 `ANTHROPIC_AUTH_TOKEN` is stripped from variant settings and wrappers; variants are API-key only to avoid auth conflicts.
 
+## Anthropic Router (OAuth main + MiniMax subagents)
+
+`anthropic-router` variants keep Claude Code on Anthropic OAuth/subscription for normal requests, while routing subagent requests to MiniMax through a localhost gateway.
+
+- Wrapper starts `config/llm-gateway.mjs` and sets `ANTHROPIC_BASE_URL=http://127.0.0.1:<port>/<randomPrefix>`.
+- MiniMax credentials are stored in `config/settings.json` under `proxyEnv` and are never exported into the Claude Code process environment.
+- Routing is triggered only for `POST /v1/messages` by `model` prefix: `minimax:<model>`.
+
+See `docs/LLM-GATEWAY.md` for the full wire contract and fallback rules.
+
 MiniMax variants seed a default MCP server entry in `~/.cc-mirror/<variant>/config/.claude.json` so the coding-plan MCP is ready once you add your API key.
 
 Z.ai variants add a deny list for known server-side MCP tools in `~/.cc-mirror/<variant>/config/settings.json`, pushing the model toward `zai-cli`.

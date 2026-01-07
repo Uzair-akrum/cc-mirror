@@ -26,10 +26,11 @@ export class WriteConfigStep implements BuildStep {
 
     ctx.report('Writing configuration...');
 
+    const isAnthropicRouter = params.providerKey === 'anthropic-router';
     const env = buildEnv({
       providerKey: params.providerKey,
-      baseUrl: params.baseUrl,
-      apiKey: params.apiKey,
+      baseUrl: isAnthropicRouter ? undefined : params.baseUrl,
+      apiKey: isAnthropicRouter ? undefined : params.apiKey,
       extraEnv: params.extraEnv,
       modelOverrides: params.modelOverrides,
     });
@@ -39,11 +40,18 @@ export class WriteConfigStep implements BuildStep {
     }
 
     const authMode = provider.authMode ?? 'apiKey';
-    if (authMode === 'apiKey' && !env.ANTHROPIC_API_KEY) {
+    if (!isAnthropicRouter && authMode === 'apiKey' && !env.ANTHROPIC_API_KEY) {
       env.ANTHROPIC_API_KEY = '<API_KEY>';
     }
 
-    const config: VariantConfig = { env };
+    const config: VariantConfig = isAnthropicRouter
+      ? {
+          env,
+          proxyEnv: {
+            MINIMAX_API_KEY: params.apiKey?.trim() ? params.apiKey.trim() : '<MINIMAX_API_KEY>',
+          },
+        }
+      : { env };
     writeJson(path.join(paths.configDir, 'settings.json'), config);
 
     state.env = env;
@@ -54,6 +62,10 @@ export class WriteConfigStep implements BuildStep {
     // Add notes for auth issues
     if (provider.authMode === 'authToken' && !env.ANTHROPIC_AUTH_TOKEN) {
       state.notes.push('ANTHROPIC_AUTH_TOKEN not set; provider auth may fail.');
+    }
+
+    if (isAnthropicRouter && (!params.apiKey || !params.apiKey.trim())) {
+      state.notes.push('MiniMax API key missing; set config/settings.json proxyEnv.MINIMAX_API_KEY.');
     }
 
     // OpenRouter needs model mapping; CCRouter handles routing internally via its own config

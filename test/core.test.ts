@@ -129,6 +129,47 @@ test('minimax brand preset writes tweakcc config', () => {
   });
 });
 
+test('anthropic-router writes proxyEnv and installs gateway script', () => {
+  withFakeNpm(() => {
+    const rootDir = makeTempDir();
+    const binDir = makeTempDir();
+
+    core.createVariant({
+      name: 'router',
+      providerKey: 'anthropic-router',
+      apiKey: 'mm-key',
+      rootDir,
+      binDir,
+      promptPack: false,
+      skillInstall: false,
+      noTweak: true,
+      tweakccStdio: 'pipe',
+    });
+
+    const variantDir = path.join(rootDir, 'router');
+    const configPath = path.join(variantDir, 'config', 'settings.json');
+    assert.ok(fs.existsSync(configPath));
+    const configJson = JSON.parse(readFile(configPath)) as {
+      env: Record<string, string | number>;
+      proxyEnv?: Record<string, string | number>;
+    };
+
+    assert.equal(configJson.env.ANTHROPIC_API_KEY, undefined);
+    assert.equal(configJson.proxyEnv?.MINIMAX_API_KEY, 'mm-key');
+    assert.equal(configJson.env.CC_MIRROR_LLM_GATEWAY, 1);
+    assert.equal(configJson.env.CC_MIRROR_GATEWAY_MODE, 'fetch-hook');
+    assert.equal(configJson.env.CLAUDE_CODE_SUBAGENT_MODEL, 'minimax:MiniMax-M2.1');
+
+    const gatewayPath = path.join(variantDir, 'config', 'llm-gateway.mjs');
+    assert.ok(fs.existsSync(gatewayPath));
+    const gatewayHookPath = path.join(variantDir, 'config', 'llm-gateway-hook.cjs');
+    assert.ok(fs.existsSync(gatewayHookPath));
+
+    cleanup(rootDir);
+    cleanup(binDir);
+  });
+});
+
 test('openrouter brand preset writes tweakcc config', () => {
   withFakeNpm(() => {
     const rootDir = makeTempDir();

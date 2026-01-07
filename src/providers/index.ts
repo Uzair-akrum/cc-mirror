@@ -69,6 +69,25 @@ const PROVIDERS: Record<string, ProviderTemplate> = {
     },
     apiKeyLabel: 'MiniMax API key',
   },
+  'anthropic-router': {
+    key: 'anthropic-router',
+    label: 'Anthropax',
+    description: 'Anthropic main + MiniMax subagents via a local gateway',
+    baseUrl: '',
+    env: {
+      API_TIMEOUT_MS: DEFAULT_TIMEOUT_MS,
+      CC_MIRROR_SPLASH: 1,
+      CC_MIRROR_PROVIDER_LABEL: 'Anthropax',
+      CC_MIRROR_SPLASH_STYLE: 'anthropic-router',
+      CC_MIRROR_LLM_GATEWAY: 1,
+      CC_MIRROR_GATEWAY_MODE: 'fetch-hook',
+      CC_MIRROR_OAUTH_ONLY: 1,
+      CC_MIRROR_UNSET_PROXY_KEYS: 1,
+      CC_MIRROR_GATEWAY_ANTHROPIC_FALLBACK_MODEL: 'claude-3-5-sonnet-latest',
+      CLAUDE_CODE_SUBAGENT_MODEL: 'minimax:MiniMax-M2.1',
+    },
+    apiKeyLabel: 'MiniMax API key',
+  },
   openrouter: {
     key: 'openrouter',
     label: 'OpenRouter',
@@ -235,6 +254,12 @@ export const buildEnv = ({ providerKey, baseUrl, apiKey, extraEnv, modelOverride
       if (!key) continue;
       env[key] = value;
     }
+  }
+
+  // For anthropic-router, gateway wiring is handled at runtime by the wrapper (base-url or fetch-hook mode)
+  // Remove it from env to ensure it's not written to settings.json
+  if (providerKey === 'anthropic-router') {
+    delete env.ANTHROPIC_BASE_URL;
   }
 
   if (authMode === 'authToken' && Object.hasOwn(env, 'ANTHROPIC_API_KEY')) {

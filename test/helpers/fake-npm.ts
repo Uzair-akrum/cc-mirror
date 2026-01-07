@@ -45,14 +45,30 @@ fs.chmodSync(cliPath, 0o755);
  */
 export const withFakeNpm = (fn: () => void) => {
   const binDir = makeTempDir();
+  const homeDir = makeTempDir();
   createFakeNpm(binDir);
   const previousPath = process.env.PATH || '';
+  const previousHome = process.env.HOME;
+  const previousShell = process.env.SHELL;
   process.env.PATH = `${binDir}:${previousPath}`;
+  process.env.HOME = homeDir;
+  process.env.SHELL = '/bin/bash';
   try {
     fn();
   } finally {
     process.env.PATH = previousPath;
+    if (previousHome === undefined) {
+      delete process.env.HOME;
+    } else {
+      process.env.HOME = previousHome;
+    }
+    if (previousShell === undefined) {
+      delete process.env.SHELL;
+    } else {
+      process.env.SHELL = previousShell;
+    }
     delete process.env.CC_MIRROR_FAKE_NPM_PAYLOAD;
     cleanup(binDir);
+    cleanup(homeDir);
   }
 };
