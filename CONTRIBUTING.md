@@ -86,4 +86,4 @@ Use conventional commits:
 
 ## Questions?
 
-Open an issue or reach out on Twitter [@nummanali](https://twitter.com/nummanali).
+Open an issue or reach out on Twitter [@uzairakrum](https://x.com/uzairakrum).
